@@ -8,7 +8,7 @@ public:
 	Vector3D(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
 	Vector3D(double c) : x(c), y(c), z(c) {}
 	Vector3D(const Vector3D &v) : x(v.x), y(v.y), z(v.z) {}
-	~Vector3D();
+	~Vector3D(){};
 
 	double x, y, z;
 

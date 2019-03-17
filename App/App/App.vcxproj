@@ -86,8 +86,9 @@
     <ClInclude Include="..\..\src\math\color.h" />
     <ClInclude Include="..\..\src\math\matrix3x3.h" />
     <ClInclude Include="..\..\src\math\Vector3D.h" />
-    <ClInclude Include="..\..\src\mesh.h" />
     <ClInclude Include="..\..\src\ray.h" />
+    <ClInclude Include="..\..\src\scene\light.h" />
+    <ClInclude Include="..\..\src\scene\mesh.h" />
     <ClInclude Include="..\..\src\scene\primitive.h" />
     <ClInclude Include="..\..\src\scene\scene.h" />
     <ClInclude Include="..\..\src\scene\triangle.h" />
@@ -96,7 +97,9 @@
     <ClCompile Include="..\..\src\BBox.cpp" />
     <ClCompile Include="..\..\src\BSDF.cpp" />
     <ClCompile Include="..\..\src\Camera.cpp" />
-    <ClCompile Include="..\..\src\mesh.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\scene\light.cpp" />
+    <ClCompile Include="..\..\src\scene\mesh.cpp" />
     <ClCompile Include="..\..\src\scene\triangle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

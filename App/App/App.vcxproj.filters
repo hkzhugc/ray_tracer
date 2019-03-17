@@ -48,10 +48,13 @@
     <ClInclude Include="..\..\src\scene\scene.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\mesh.h">
+    <ClInclude Include="..\..\src\math\color.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\math\color.h">
+    <ClInclude Include="..\..\src\scene\light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\scene\mesh.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,7 +71,13 @@
     <ClCompile Include="..\..\src\scene\triangle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\mesh.cpp">
+    <ClCompile Include="..\..\src\scene\light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\scene\mesh.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

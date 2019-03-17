@@ -17,7 +17,4 @@ public:
 	virtual void intersect(Ray &r, Intersection &i) const = 0;
 
 	virtual BSDF* get_bsdf() const = 0;
-	 
-private:
-
 };

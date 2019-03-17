@@ -3,7 +3,7 @@
 #include <float.h>
 struct Ray
 {
-	~Ray();
+	~Ray(){};
 	Vector3D o;//ray start at o
 	Vector3D d;//ray trans along d 
 	double min_t, max_t;//ray exsitence
