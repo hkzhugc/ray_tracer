@@ -1,6 +1,6 @@
 #pragma once
 #include <cmath>
-//定义自己使用的Vector
+//define vector
 class Vector3D
 {
 public:
@@ -61,40 +61,40 @@ public:
 		(*this) *= (1. / c);
 	}
 
-	//返回向量的长度
+	//length of the vector
 	inline double norm(void) const {
 		return sqrt(x*x + y*y + z*z);
 	}
 
-	//返回向量长度的平方
+	//length square
 	inline double norm2(void) const {
 		return x*x + y*y + z*z;
 	}
 
-	//返回向量的单位向量
+	//unit of the vector
 	inline Vector3D unit(void) const {
 		double rNorm = 1. / sqrt(x*x + y*y + z*z);
 		return Vector3D(rNorm*x, rNorm*y, rNorm*z);
 	}
 
-	//单位化向量
+	//normalize the vector
 	inline void normalize(void) {
 		(*this) /= norm();
 	}
 
 };
 
-//定义左乘一个标量
+//times by a scalar
 inline Vector3D operator* (const double& c, const Vector3D& v) {
 	return Vector3D(c * v.x, c * v.y, c * v.z);
 }
 
-//定义点积
+//dot production
 inline double dot(const Vector3D& u, const Vector3D& v) {
 	return u.x*v.x + u.y*v.y + u.z*v.z;
 }
 
-//定义叉乘
+//cross production
 inline Vector3D cross(const Vector3D& u, const Vector3D& v) {
 	return Vector3D(u.y*v.z - u.z*v.y,
 		u.z*v.x - u.x*v.z,
