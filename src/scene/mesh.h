@@ -89,6 +89,7 @@ public:
 	Token_processers token_processers;
 private:
 	void Process_token(vector<string>& words);
+	string prefix;
 };
 
 void SplitString(const std::string& s, std::vector<std::string>& v, const std::string& c);

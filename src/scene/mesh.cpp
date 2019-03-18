@@ -57,6 +57,7 @@ void Token_processer_face::process(vector<string>& words, Mesh& mesh) const
 		return;
 	}
 	size_t v0, v1, v2;
+	size_t vn0, vn1, vn2;
 }
 
 void Mesh::Process_token(vector<string>& words)
@@ -85,7 +86,9 @@ void Mesh::Load_Scene(string mesh_file_name, string light_file_name)
 	}
 	else
 	{
-
+		size_t pos = mesh_file_name.find_last_of("/");
+		prefix = mesh_file_name.substr(0, pos + 1);
+		printf("prefix = %s\n", prefix.c_str());
 		string line;
 		while (getline(mesh_file, line))
 		{
@@ -128,5 +131,20 @@ void Mesh::Load_Light(string light_file_name)
 
 void Mesh::Load_Material(string material_file_name)
 {
+	material_file_name = prefix + material_file_name;
 	printf("Load Materials from %s\n", material_file_name.c_str());
+	ifstream material_file(material_file_name);
+	if (!material_file.is_open())
+	{
+		printf("can not open file %s\n", material_file_name.c_str());
+		return;
+	}
+	else
+	{
+		string line;
+		while (getline(material_file, line))
+		{
+
+		}
+	}
 }

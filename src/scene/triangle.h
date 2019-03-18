@@ -5,27 +5,23 @@ class Triangle :
 {
 public:
 	Triangle(){};
-	Triangle(const Vector3D& _a, const Vector3D& _b, const Vector3D& _c) : 
-		v0(_a), v1(_b), v2(_c), isVertexNormal(false)
-	{
-		Vector3D normal;
-		normal = cross(v1 - v0, v2 - v1);
-		normal.normalize();
-		n0 = n1 = n2 = normal;
-	}
-	Triangle(const Vector3D& _a, const Vector3D& _b, const Vector3D& _c, const Vector3D& _na, const Vector3D& _nb, const Vector3D& _nc) : 
+	Triangle(const size_t& _a, const size_t& _b, const size_t& _c) :
+		v0(_a), v1(_b), v2(_c), isVertexNormal(false){}
+	Triangle(const size_t& _a, const size_t& _b, const size_t& _c, const size_t& _na, const size_t& _nb, const size_t& _nc, BSDF* _bsdf) :
 		v0(_a), v1(_b), v2(_c), isVertexNormal(true),
-		n0(_na), n1(_nb), n2(_nc){}
+		n0(_na), n1(_nb), n2(_nc){
+		bsdf = _bsdf;
+	}
 	~Triangle() {};
 
 	BBox get_bbox() const;
 	void intersect(Ray &r) const;
 	void intersect(Ray &r, Intersection &i) const;
-	BSDF* get_bsdf() const;
-	Vector3D get_normal(double b1, double b2);
+	BSDF* get_bsdf() const { return bsdf; };
 private:
 	bool isVertexNormal;
-	Vector3D v0, v1, v2;
-	Vector3D n0, n1, n2;
+	size_t v0, v1, v2;
+	size_t n0, n1, n2;
+	BSDF* bsdf;
 };
 
