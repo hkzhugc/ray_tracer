@@ -16,7 +16,7 @@ using std::istringstream;
 
 class Mesh;
 class Token_processer;
-typedef map<string, BSDF*> Materials;
+typedef map<string, BlinnPhonBSDF*> Materials;
 typedef map<string, Token_processer*> Token_processers;
 
 

@@ -107,6 +107,11 @@ void Mesh::Print_Mesh()
 {
 	printf("printf Mesh contents:\n");
 	printf("vertex coordinate:\n");
+	for (auto e : materials)
+	{
+		printf("\nmaterial name is %s:\n", e.first.c_str());
+		e.second->print_bsdf();
+	}
 	for (auto v : vertices)
 	{
 		printf("v %lf %lf %lf\n", v.x, v.y, v.z);
@@ -142,9 +147,67 @@ void Mesh::Load_Material(string material_file_name)
 	else
 	{
 		string line;
+		int state = 0; //0 wating the matial name, 1 ready to read params
+		string name("");
+		Color Kd;
+		Color Ka;
+		Color Ks;
+		Color Tf;
+		double Ni = 1.0;
+		double Ns = 0;
 		while (getline(material_file, line))
 		{
-
+			vector<string> words;
+			SplitString(line, words, " ");
+			if (words[0] == "newmtl")
+			{
+				if(name == "")
+					name = words[1];
+				else
+				{
+					BlinnPhonBSDF * newmtl = new BlinnPhonBSDF(Ka, Kd, Ks, Tf, Ni, Ns);
+					materials[name] = newmtl;
+					Kd = Color(0, 0, 0);
+					Ka = Color(0, 0, 0);
+					Ks = Color(0, 0, 0);
+					Tf = Color(0, 0, 0);
+					Ni = 1.0;
+					Ns = 0;
+					name = words[1];
+				}
+			}
+			else if (words[0] == "Kd")
+			{
+				stringToNum(Kd.r, words[1]);
+				stringToNum(Kd.g, words[2]);
+				stringToNum(Kd.b, words[3]);
+			}
+			else if (words[0] == "Ka")
+			{
+				stringToNum(Ka.r, words[1]);
+				stringToNum(Ka.g, words[2]);
+				stringToNum(Ka.b, words[3]);
+			}
+			else if (words[0] == "Ks")
+			{
+				stringToNum(Ks.r, words[1]);
+				stringToNum(Ks.g, words[2]);
+				stringToNum(Ks.b, words[3]);
+			}
+			else if (words[0] == "Tf")
+			{
+				stringToNum(Tf.r, words[1]);
+				stringToNum(Tf.g, words[2]);
+				stringToNum(Tf.b, words[3]);
+			}
+			else if (words[0] == "Ni")
+			{
+				stringToNum(Ni, words[1]);
+			}
+			else if (words[0] == "Ns")
+			{
+				stringToNum(Ns, words[1]);
+			}
 		}
 	}
 }
