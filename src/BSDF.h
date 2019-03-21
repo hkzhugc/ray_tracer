@@ -22,6 +22,18 @@ public:
 	Vector3D get_sample() const;
 	Vector3D get_sample(float* pdf) const;
 };
+
+class CosineNPowWeightedHemisphereSampler : public Sampler
+{
+public:
+	CosineNPowWeightedHemisphereSampler(double _Ks) : Ks(_Ks) {};
+	~CosineNPowWeightedHemisphereSampler() {};
+	Vector3D get_sample() const;
+	Vector3D get_sample(float* pdf) const;
+private:
+	double Ks;
+};
+
 class UniformHemisphereSampler3D : public Sampler
 {
 public:
@@ -58,8 +70,17 @@ class BlinnPhonBSDF
 {
 public:
 	BlinnPhonBSDF(Color _Ka, Color _Kd, Color _Ks, Color _Tf, double _Ni, double _Ns) :
-		Ka(_Ka), Kd(_Kd), Ks(_Ks), Tf(_Tf), Ni(_Ni), Ns(_Ns)
-	{};
+		Ka(_Ka), Kd(_Kd), Ks(_Ks), Tf(_Tf), Ni(_Ni), Ns(_Ns), specular_sampler(_Ns)
+	{
+		pdf_diffuse = Kd.illum();
+		pdf_specular = Ks.illum();
+		pdf_transparent = Color(1 - Tf.r, 1 - Tf.g, 1 - Tf.b).illum();
+
+		double sum = pdf_diffuse + pdf_specular + pdf_transparent;
+		pdf_diffuse /= sum;
+		pdf_specular /= sum;
+		pdf_transparent /= sum;
+	};
 	~BlinnPhonBSDF() {};
 
 	void print_bsdf()
@@ -72,12 +93,31 @@ public:
 		printf("Ns %lf\n", Ns);
 	}
 
+	//if bsdf emit lights return the spectrum
+	Color get_emission() const;
+
+	//sample a light, return the outgoing dir and pdf and color
+	Color sample_f(const Vector3D& wo, Vector3D* wi, float* pdf) const;
+
+private:
 	Color Ka;
 	Color Kd;
 	Color Ks;
 	Color Tf;
 	double Ni;
 	double Ns;
+
+	//pdf for sample which the light came from
+	double pdf_diffuse;
+	double pdf_specular;
+	double pdf_transparent;
+
+	CosineWeightedHemisphereSampler diffuse_sampler;
+	CosineNPowWeightedHemisphereSampler specular_sampler;
+
+	Color sample_diffuse(const Vector3D& wo, Vector3D* wi, float* pdf) const;
+	Color sample_specular(const Vector3D& wo, Vector3D* wi, float* pdf) const;
+	Color sample_transparent(const Vector3D& wo, Vector3D* wi, float* pdf) const;
 };
 
 //Mirror bsdf, when Kd equal (0, 0, 0) and Tf equal (1, 1, 1)
