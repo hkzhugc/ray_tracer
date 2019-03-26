@@ -11,6 +11,6 @@ struct Ray
 	Ray(const Vector3D &_o, const Vector3D &_d) : o(_o), d(_d), min_t(0.0), max_t(DBL_MAX) {}
 	Ray(const Vector3D &_o, const Vector3D &_d, const double &_max_t) : o(_o), d(_d), min_t(0.0), max_t(_max_t) {}
 
-	//返回t时刻光线所在的位置
+	//return the ray at time t
 	inline Vector3D at_time(double t) const { return o + t * d; }
 };

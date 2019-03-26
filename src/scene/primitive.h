@@ -12,9 +12,9 @@ public:
 	//return AABB for building bvh
 	virtual BBox get_bbox() const = 0;
 
-	virtual void intersect(Ray &r) const = 0;
+	virtual bool intersect(Ray &r) const = 0;
 
-	virtual void intersect(Ray &r, Intersection &i) const = 0;
+	virtual bool intersect(Ray &r, Intersection *i) const = 0;
 
-	virtual BSDF* get_bsdf() const = 0;
+	virtual BlinnPhonBSDF* get_bsdf() const = 0;
 };

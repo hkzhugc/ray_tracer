@@ -45,16 +45,25 @@
     <ClInclude Include="..\..\src\scene\triangle.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\scene\scene.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\math\color.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\scene\light.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\mypng\myypng.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ray_tracer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\scene\scene.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\scene\mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sampler.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,10 +83,19 @@
     <ClCompile Include="..\..\src\scene\light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\scene\mesh.cpp">
+    <ClCompile Include="..\..\src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\main.cpp">
+    <ClCompile Include="..\..\src\mypng\myypng.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ray_tracer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\scene\scene.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sampler.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

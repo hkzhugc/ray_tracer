@@ -1,4 +1,4 @@
-#include "mesh.h"
+#include "scene.h"
 
 template <class Type>
 void stringToNum(Type& num,const string& str)
@@ -23,7 +23,7 @@ void SplitString(const string& s, vector<string>& v, const string& c)
 		v.push_back(s.substr(pos1));
 }
 
-void Token_processer_vertex_or_normal::process(vector<string>& words, Mesh& mesh) const
+void Token_processer_vertex_or_normal::process(vector<string>& words, Scene& scene) const
 {
 	if (words.size() != 4)
 	{
@@ -31,7 +31,7 @@ void Token_processer_vertex_or_normal::process(vector<string>& words, Mesh& mesh
 		return;
 	}
 	bool isNormal = (words[0] == "vn");
-	vector<Vector3D>& tar_vec = (isNormal) ? mesh.vertex_normals : mesh.vertices;
+	vector<Vector3D>& tar_vec = (isNormal) ? scene.mesh.normals : scene.mesh.vertices;
 	Vector3D val;
 	stringToNum(val.x, words[1]);
 	stringToNum(val.y, words[2]);
@@ -39,17 +39,29 @@ void Token_processer_vertex_or_normal::process(vector<string>& words, Mesh& mesh
 	tar_vec.push_back(val);
 }
 
-void Token_processer_mtllib::process(vector<string>& words, Mesh& mesh) const
+void Token_processer_mtllib::process(vector<string>& words, Scene& scene) const
 {
 	if (words.size() != 2)
 	{
 		printf("wrong line in file\n");
 		return;
 	}
-	mesh.Load_Material(words[1]);
+	scene.Load_Material(words[1]);
 }
 
-void Token_processer_face::process(vector<string>& words, Mesh& mesh) const
+void Token_processer_usemtl::process(vector<string>& words, Scene & scene) const
+{
+	scene.triangle_bsdf = scene.materials[words[1]];
+}
+
+void read_face_helper(const vector<string>& words, int idx, size_t& v, size_t& vn)
+{
+	vector<string> face;
+	SplitString(words[idx], face, "/");
+	stringToNum(v, face[0]); stringToNum(vn, face[2]);
+}
+
+void Token_processer_face::process(vector<string>& words, Scene& scene) const
 {
 	if (words.size() < 4)
 	{
@@ -58,9 +70,19 @@ void Token_processer_face::process(vector<string>& words, Mesh& mesh) const
 	}
 	size_t v0, v1, v2;
 	size_t vn0, vn1, vn2;
+	read_face_helper(words, 1, v0, vn0);
+	read_face_helper(words, 2, v1, vn1);
+	for (int i = 3; i < words.size(); i++)
+	{
+		read_face_helper(words, i, v2, vn2);
+		Triangle *p = new Triangle(v0 - 1, v1 - 1, v2 - 1, vn0 - 1, vn1 - 1, vn2 - 1, scene.triangle_bsdf, &scene.mesh);
+		printf("reading f %d/%d %d/%d %d/%d\n", p->v0, p->n0, p->v1, p->n1, p->v2, p->n2);
+		scene.primitives.push_back(p);
+		v1 = v2; vn1 = vn2;
+	}
 }
 
-void Mesh::Process_token(vector<string>& words)
+void Scene::Process_token(vector<string>& words)
 {
 	string token = words[0];
 	auto it = token_processers.find(token);
@@ -74,7 +96,7 @@ void Mesh::Process_token(vector<string>& words)
 	}
 }
 
-void Mesh::Load_Scene(string mesh_file_name, string light_file_name)
+void Scene::Load_Scene(string mesh_file_name, string light_file_name)
 {
 	Load_Light(light_file_name);
 	ifstream mesh_file;
@@ -103,38 +125,39 @@ void Mesh::Load_Scene(string mesh_file_name, string light_file_name)
 	}
 }
 
-void Mesh::Print_Mesh()
+void Scene::Print_Mesh()
 {
-	printf("printf Mesh contents:\n");
+	printf("printf Scene contents:\n");
 	printf("vertex coordinate:\n");
 	for (auto e : materials)
 	{
 		printf("\nmaterial name is %s:\n", e.first.c_str());
 		e.second->print_bsdf();
 	}
-	for (auto v : vertices)
+	for (auto v : mesh.vertices)
 	{
 		printf("v %lf %lf %lf\n", v.x, v.y, v.z);
 	}
 	printf("vertex normal:\n");
-	for (auto v : vertex_normals)
+	for (auto v : mesh.normals)
 	{
 		printf("vn %lf %lf %lf\n", v.x, v.y, v.z);
 	}
 	printf("primitives:\n");
 	for (auto p : primitives)
 	{
-		
+		printf("f %d/%d %d/%d %d/%d\n", p->v0, p->n0, p->v1, p->n1, p->v2, p->n2);
+		p->get_bsdf()->print_bsdf();
 	}
 	return;
 }
 
-void Mesh::Load_Light(string light_file_name)
+void Scene::Load_Light(string light_file_name)
 {
 	printf("Load Lights from %s\n", light_file_name.c_str());
 }
 
-void Mesh::Load_Material(string material_file_name)
+void Scene::Load_Material(string material_file_name)
 {
 	material_file_name = prefix + material_file_name;
 	printf("Load Materials from %s\n", material_file_name.c_str());
@@ -165,7 +188,7 @@ void Mesh::Load_Material(string material_file_name)
 					name = words[1];
 				else
 				{
-					BlinnPhonBSDF * newmtl = new BlinnPhonBSDF(Ka, Kd, Ks, Tf, Ni, Ns);
+					BlinnPhonBSDF * newmtl = new BlinnPhonBSDF(name, Ka, Kd, Ks, Tf, Ni, Ns);
 					materials[name] = newmtl;
 					Kd = Color(0, 0, 0);
 					Ka = Color(0, 0, 0);
@@ -211,3 +234,4 @@ void Mesh::Load_Material(string material_file_name)
 		}
 	}
 }
+

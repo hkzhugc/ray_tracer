@@ -1,47 +1,12 @@
 #pragma once
 #include "math/color.h"
 #include "math/Vector3D.h"
+#include "math/matrix3x3.h"
+#include "sampler.h"
 #include <random>
 #include <math.h>
-
-class Sampler
-{
-public:
-	Sampler(){}
-	~Sampler(){}
-
-	virtual Vector3D get_sample() const = 0;
-	virtual Vector3D get_sample(float* pdf) const = 0;
-};
-
-class CosineWeightedHemisphereSampler : public Sampler
-{
-public:
-	CosineWeightedHemisphereSampler() {};
-	~CosineWeightedHemisphereSampler() {};
-	Vector3D get_sample() const;
-	Vector3D get_sample(float* pdf) const;
-};
-
-class CosineNPowWeightedHemisphereSampler : public Sampler
-{
-public:
-	CosineNPowWeightedHemisphereSampler(double _Ks) : Ks(_Ks) {};
-	~CosineNPowWeightedHemisphereSampler() {};
-	Vector3D get_sample() const;
-	Vector3D get_sample(float* pdf) const;
-private:
-	double Ks;
-};
-
-class UniformHemisphereSampler3D : public Sampler
-{
-public:
-	UniformHemisphereSampler3D() {};
-	~UniformHemisphereSampler3D() {};
-	Vector3D get_sample() const;
-	Vector3D get_sample(float* pdf) const;
-};
+#include <string>
+using std::string;
 
 class BSDF
 {
@@ -69,8 +34,8 @@ public:
 class BlinnPhonBSDF
 {
 public:
-	BlinnPhonBSDF(Color _Ka, Color _Kd, Color _Ks, Color _Tf, double _Ni, double _Ns) :
-		Ka(_Ka), Kd(_Kd), Ks(_Ks), Tf(_Tf), Ni(_Ni), Ns(_Ns), specular_sampler(_Ns)
+	BlinnPhonBSDF(string _name, Color _Ka, Color _Kd, Color _Ks, Color _Tf, double _Ni, double _Ns) :
+		name(_name), Ka(_Ka), Kd(_Kd), Ks(_Ks), Tf(_Tf), Ni(_Ni), Ns(_Ns), specular_sampler(_Ns)
 	{
 		pdf_diffuse = Kd.illum();
 		pdf_specular = Ks.illum();
@@ -85,6 +50,7 @@ public:
 
 	void print_bsdf()
 	{
+		printf("bsdf name is %s\n", name.c_str());
 		printf("Ka %f %f %f\n", Ka.r, Ka.g, Ka.b);
 		printf("Kd %f %f %f\n", Kd.r, Kd.g, Kd.b);
 		printf("Ks %f %f %f\n", Ks.r, Ks.g, Ks.b);
@@ -98,10 +64,12 @@ public:
 
 	//sample a light, return the outgoing dir and pdf and color
 	Color sample_f(const Vector3D& wo, Vector3D* wi, float* pdf) const;
-
-private:
-	Color Ka;
 	Color Kd;
+private:
+	string name;
+
+	Color Ka;
+	
 	Color Ks;
 	Color Tf;
 	double Ni;
@@ -147,3 +115,5 @@ private:
 	Color Kd;
 	CosineWeightedHemisphereSampler sampler;
 };
+
+void make_coord_space(Matrix3x3& o2w, const Vector3D& n);

@@ -1,77 +1,29 @@
 #include "BSDF.h"
 
-	double random_uniform()
+void make_coord_space(Matrix3x3& o2w, const Vector3D& n) 
 {
-	return ((double)std::rand()) / RAND_MAX;
-}
 
-Vector3D CosineWeightedHemisphereSampler::get_sample() const
-{
-	float f;
-	return get_sample(&f);
-}
+	Vector3D z = Vector3D(n.x, n.y, n.z);
+	Vector3D h = z;
+	if (fabs(h.x) <= fabs(h.y) && fabs(h.x) <= fabs(h.z)) h.x = 1.0;
+	else if (fabs(h.y) <= fabs(h.x) && fabs(h.y) <= fabs(h.z)) h.y = 1.0;
+	else h.z = 1.0;
 
-Vector3D CosineWeightedHemisphereSampler::get_sample(float *pdf) const
-{
-	double Xi1 = random_uniform(); // sample sin(theta) square? because we should sample the point according to sin(theta)cos(theta), which PDF = sin(theta) square
-	double Xi2 = random_uniform();
+	z.normalize();
+	Vector3D y = cross(h, z);
+	y.normalize();
+	Vector3D x = cross(z, y);
+	x.normalize();
 
-	double r = sqrt(Xi1); // r equal to sin theta
-	double phi = 2. * M_PI * Xi2;
-	*pdf = sqrt(1 - Xi1) / M_PI;// pdf = 2 cos(theta) / 2Pi
-	return Vector3D(r*cos(phi), r*sin(phi), sqrt(1 - Xi1));
-}
-
-Vector3D UniformHemisphereSampler3D::get_sample() const
-{
-	float f;
-	return get_sample(&f);
-}
-
-Vector3D UniformHemisphereSampler3D::get_sample(float *pdf) const
-{
-	*pdf = 1 / (2. * M_PI);
-	double Xi1 = random_uniform();
-	double Xi2 = random_uniform();
-
-	double theta = acos(Xi1);
-	double phi = 2.0 * M_PI * Xi2;
-
-	double xs = sinf(theta) * cosf(phi);
-	double ys = sinf(theta) * sinf(phi);
-	double zs = cosf(theta);
-
-	return Vector3D(xs, ys, zs);
+	o2w[0] = x;
+	o2w[1] = y;
+	o2w[2] = z;
 }
 
 Color DiffuseBSDF::sample_f(const Vector3D& wo, Vector3D* wi, float* pdf)
 {
 	*wi = sampler.get_sample(pdf);
 	return Kd;
-}
-
-Vector3D CosineNPowWeightedHemisphereSampler::get_sample() const
-{
-	float pdf;
-	return get_sample(&pdf);
-}
-
-Vector3D CosineNPowWeightedHemisphereSampler::get_sample(float * pdf) const
-{
-	double Xi1 = random_uniform();
-	double Xi2 = random_uniform();
-
-	double cos_val = pow(Xi1, 1. / (Ks + 1));
-	double phi = 2.0 * M_PI * Xi2;
-	double sin_val = sqrt(1 - cos_val * cos_val);
-
-	*pdf = (Ks + 1) * pow(cos_val, Ks) / (2. * M_PI);
-
-	double xs = sin_val * cosf(phi);
-	double ys = sin_val * sinf(phi);
-	double zs = cos_val;
-
-	return Vector3D(xs, ys, zs);
 }
 
 Color BlinnPhonBSDF::get_emission() const
