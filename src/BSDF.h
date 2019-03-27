@@ -64,6 +64,7 @@ public:
 
 	//sample a light, return the outgoing dir and pdf and color
 	Color sample_f(const Vector3D& wo, Vector3D* wi, float* pdf) const;
+	Color f(const Vector3D& wo, const Vector3D& wi) const;
 	Color Kd;
 private:
 	string name;

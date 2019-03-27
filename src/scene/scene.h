@@ -58,6 +58,7 @@ public:
 	~Token_processer_face() {};
 	void process(vector<string>& words, Scene& scene) const;
 };
+
 class Scene
 {
 public:

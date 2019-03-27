@@ -10,12 +10,12 @@ public:
 };
 
 class SphereLight
-	: Light
+	: public Light
 {
 public:
-	SphereLight(Color _radiance) : radiance(_radiance) {}
+	SphereLight(const Color _radiance, const Vector3D& _pos, const double& _radius) : radiance(_radiance), pos(_pos), radius(_radius) {}
 	~SphereLight() = default;
-	Color sample_L(const Vector3D& p, Vector3D* wi, float* distToLight, float* pdf);
+	Color sample_L(const Vector3D& p, Vector3D* wi, float* distToLight, float* pdf) const;
 private:
 	Vector3D pos;
 	double radius;

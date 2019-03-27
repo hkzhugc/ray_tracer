@@ -50,6 +50,11 @@ Color BlinnPhonBSDF::sample_f(const Vector3D & wo, Vector3D * wi, float * pdf) c
 	return bsdf;
 }
 
+Color BlinnPhonBSDF::f(const Vector3D& wo, const Vector3D& wi) const
+{
+	return Kd / M_PI;
+}
+
 Color BlinnPhonBSDF::sample_diffuse(const Vector3D & wo, Vector3D * wi, float * pdf) const
 {
 	*wi = diffuse_sampler.get_sample(pdf);

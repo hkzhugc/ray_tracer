@@ -152,9 +152,13 @@ void Scene::Print_Mesh()
 	return;
 }
 
+//TODO : implement load light from a file
 void Scene::Load_Light(string light_file_name)
 {
 	printf("Load Lights from %s\n", light_file_name.c_str());
+
+	SphereLight *light0 = new SphereLight(Color(50, 50, 40), Vector3D(0, 1.589, -1.274), 0.2);
+	lights.push_back(light0);
 }
 
 void Scene::Load_Material(string material_file_name)

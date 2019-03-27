@@ -5,33 +5,39 @@ void ray_tracer::init_scene(string mesh_file, string light_file)
 	scene.Load_Scene(mesh_file, light_file);
 }
 
+//TODO should check the ray is a camera ray or a ray reflect by sample specular
 Color ray_tracer::trace_ray(Ray &r)
 {
 	Intersection intersect;
+	Color light_color;
+
+	//TODO : should be replaced by bvh->intersect
 	bool flag = false;
 	for (auto p : scene.primitives)
 	{
 		bool temp = p->intersect(r, &intersect);
 		flag |= temp;
-#ifdef DEBUG
-		//if (temp)
-		//{
-		//	intersect.bsdf->print_bsdf();
-		//	getchar();
-		//}
-#endif // DEBUG
 	}
-	//intersect.bsdf->print_bsdf();
-	if (flag)
-	{
-		intersec_ps.push_back(UniformSphereSampler3D().get_sample());
-		//intersec_ps.push_back(r.at_time(intersect.t));
-		return intersect.bsdf->Kd;
+
+	if (!flag){
+		printf("no intersect, r pos (%lf, %lf, %lf)\n", r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
+		return Color(0, 0, 0);
 	}
-	else
-	{
-		return Color(1, 1, 1);
-	}
+
+
+	//TODO : if ray is a camera ray or a ray reflect by sample specular
+	//       should add the intersect materials's emisson
+
+
+	//sample the direct light, 
+	light_color += estimate_direct_light(r, intersect);
+
+	//TODO : sample indirect light, acoording to the depth of the ray
+	if (r.depth > 0)
+		light_color += estimate_indirect_light(r, intersect);
+
+	return light_color;
+
 }
 
 Color ray_tracer::trace_pixel(size_t x, size_t y)
@@ -46,7 +52,11 @@ void ray_tracer::trace_scene()
 	{
 		for (size_t y = 0; y < screenH; y++)
 		{
-			png.setImagePixel(x, y, trace_pixel(x, y));
+			Color pixel_color;
+			for (size_t i = 0; i < ns_pixel; i++)
+				pixel_color += trace_pixel(x, y);
+			pixel_color /= ns_pixel;
+			png.setImagePixel(x, y, pixel_color);
 		}
 	}
 #ifdef DEBUG
@@ -61,43 +71,97 @@ void ray_tracer::trace_scene()
 	png.writeImage("ray_casting.png");
 }
 
-Color ray_tracer::estimate_direct_light(const Ray & r, const Intersection & i)
+Color ray_tracer::estimate_direct_light(const Ray & r, const Intersection & intersect)
 {
 	Matrix3x3 o2w;
-	make_coord_space(o2w, i.n);
+	make_coord_space(o2w, intersect.n);
 	Matrix3x3 w2o = o2w.T();
 
-	const Vector3D& hit_p = r.at_time(i.t);
-	const Vector3D& w_out = w2o * (-r.d);
+	const Vector3D& hit_p = r.at_time(intersect.t);
+	const Vector3D& w_out = (w2o * (-r.d)).unit();
 
 	Color L_out;
 	for (auto l : scene.lights)
 	{
-		Vector3D wi; //in world coord
-		Vector3D w_in; //in local coord
-		float light_distance;
-		float pdf;
-
-		Color sample_light = l->sample_L(hit_p, &wi, &light_distance, &pdf);
-
-		w_in = w2o * wi;
-		if (w_in.z < 0) // light is behind the obj
-			continue;
-
-		Ray shadow_ray(hit_p + EPS_D * wi, wi);
-		shadow_ray.max_t = light_distance;
-
-		//TODO : should be replace by bvh->intersect
-		bool is_block = false;
-		for (auto p : scene.primitives)
+		Color light_contribution;
+		size_t sample_times = ns_lights; //TODO : check if it is a delta light, then it should sample only once
+		for (size_t i = 0; i < sample_times; i++)
 		{
-			is_block |= p->intersect(shadow_ray);
-			if (is_block) break;
-		}
+			Vector3D wi; //in world coord
+			Vector3D w_in; //in local coord
+			float light_distance;
+			float pdf;
 
-		if (!is_block)
-			L_out += sample_light / pdf; //TODO : should multi by bsdf and cos term
+			Color sample_light = l->sample_L(hit_p, &wi, &light_distance, &pdf);
+			if (sample_light.r < 0 || sample_light.g < 0 || sample_light.b < 0)
+			{
+				printf("wrong when sample light\n");
+				getchar();
+			}
+
+			w_in = w2o * wi;
+			if (w_in.z < 0) // light is behind the obj
+				continue;
+
+			Vector3D ray_pos = hit_p + EPS_D * wi;
+			Ray shadow_ray(ray_pos, wi);
+			shadow_ray.max_t = light_distance;
+
+			//TODO : should be replace by bvh->intersect
+			bool is_block = false;
+			for (auto p : scene.primitives)
+			{
+				is_block |= p->intersect(shadow_ray);
+				if (is_block) break;
+			}
+
+			if (!is_block)
+				//rendering equation  L_out =   f                      *  L           * cos / pdf ?
+				light_contribution += intersect.bsdf->f(w_out, w_in) * sample_light * fabs(w_in.z);
+		}
+		L_out += (light_contribution / sample_times);
 	}
 
-	return Color();
+	return L_out;
+}
+
+Color ray_tracer::estimate_indirect_light(const Ray& r, const Intersection& intersect)
+{
+	Matrix3x3 o2w;
+	make_coord_space(o2w, intersect.n);
+	Matrix3x3 w2o = o2w.T();
+
+	const Vector3D& hit_p = r.at_time(intersect.t);
+	const Vector3D& w_out = w2o * (-r.d);
+
+	Color L_out;
+
+	Vector3D wi; //in world coord
+	Vector3D w_in; //in local coord
+	float pdf;
+
+	Color reflectance = intersect.bsdf->sample_f(w_out, &w_in, &pdf);
+
+	if (w_in.z < 0)
+		printf("when indirect light, sample a neg reflect\n");
+
+	wi = o2w * w_in;
+	wi.normalize();
+
+	Vector3D ray_pos = hit_p + EPS_D * wi;
+	Vector3D delta = ray_pos - hit_p;
+	Ray next_ray(ray_pos, wi);
+	next_ray.depth = r.depth - 1;
+
+	//for (size_t i = 0; i < 3; i++)
+	//{
+	//	if (fabs(ray_pos[i]) > (3.0 + EPS_D)){
+	//		printf("wrong at compute the hit_p(%lf %lf %lf)\n", ray_pos[0], ray_pos[1], ray_pos[2]);
+	//		printf("delta (%lf %lf %lf) wi (%lf %lf %lf)\n", delta[0], delta[1], delta[2], wi[0], wi[1], wi[2]);
+	//		getchar();
+	//	}
+	//}
+
+	L_out = reflectance * trace_ray(next_ray) * fabs(w_in.z) / pdf;
+	return L_out;
 }
