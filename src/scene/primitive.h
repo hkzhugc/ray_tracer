@@ -14,7 +14,7 @@ public:
 
 	virtual bool intersect(Ray &r) const = 0;
 
-	virtual bool intersect(Ray &r, Intersection *i) const = 0;
+	virtual bool intersect(Ray &r, Intersection *i, bool ignore_light) const = 0;
 
 	virtual BlinnPhonBSDF* get_bsdf() const = 0;
 };

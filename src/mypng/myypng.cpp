@@ -85,11 +85,18 @@ float clamp(float val)
 	return val;
 }
 
+png_byte clamp(png_byte val)
+{
+	val = val > 255 ? 255 : val;
+	val = val < 0 ? 0 : val;
+	return val;
+}
+
 void myypng::setImagePixel(int x, int y, Color color)
 {
-	png_byte r = clamp(color.r) * 255;
-	png_byte g = clamp(color.g) * 255;
-	png_byte b = clamp(color.b) * 255;
+	png_byte r = clamp((png_byte)(clamp(color.r) * 255.f));
+	png_byte g = clamp((png_byte)(clamp(color.g) * 255.f));
+	png_byte b = clamp((png_byte)(clamp(color.b) * 255.f));
 
 	y = height - 1 - y;
 

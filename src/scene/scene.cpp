@@ -52,6 +52,7 @@ void Token_processer_mtllib::process(vector<string>& words, Scene& scene) const
 void Token_processer_usemtl::process(vector<string>& words, Scene & scene) const
 {
 	scene.triangle_bsdf = scene.materials[words[1]];
+	scene.triangle_bsdf_name = words[1];
 }
 
 void read_face_helper(const vector<string>& words, int idx, size_t& v, size_t& vn)
@@ -75,8 +76,8 @@ void Token_processer_face::process(vector<string>& words, Scene& scene) const
 	for (int i = 3; i < words.size(); i++)
 	{
 		read_face_helper(words, i, v2, vn2);
-		Triangle *p = new Triangle(v0 - 1, v1 - 1, v2 - 1, vn0 - 1, vn1 - 1, vn2 - 1, scene.triangle_bsdf, &scene.mesh);
-		printf("reading f %d/%d %d/%d %d/%d\n", p->v0, p->n0, p->v1, p->n1, p->v2, p->n2);
+		Triangle *p = new Triangle(v0 - 1, v1 - 1, v2 - 1, vn0 - 1, vn1 - 1, vn2 - 1, scene.triangle_bsdf, &scene.mesh, scene.triangle_bsdf_name);
+		//printf("reading f %d/%d %d/%d %d/%d\n", p->v0, p->n0, p->v1, p->n1, p->v2, p->n2);
 		scene.primitives.push_back(p);
 		v1 = v2; vn1 = vn2;
 	}
@@ -92,7 +93,7 @@ void Scene::Process_token(vector<string>& words)
 	}
 	else
 	{
-		printf("not implement yet\n");
+		printf("process %s not implement yet\n", token.c_str());
 	}
 }
 
@@ -110,11 +111,11 @@ void Scene::Load_Scene(string mesh_file_name, string light_file_name)
 	{
 		size_t pos = mesh_file_name.find_last_of("/");
 		prefix = mesh_file_name.substr(0, pos + 1);
-		printf("prefix = %s\n", prefix.c_str());
+		//printf("prefix = %s\n", prefix.c_str());
 		string line;
 		while (getline(mesh_file, line))
 		{
-			printf("read line %s\n", line.c_str());
+			//printf("read line %s\n", line.c_str());
 			vector<string> words;
 			SplitString(line, words, " ");
 			if (words.size() < 1)
@@ -133,21 +134,6 @@ void Scene::Print_Mesh()
 	{
 		printf("\nmaterial name is %s:\n", e.first.c_str());
 		e.second->print_bsdf();
-	}
-	for (auto v : mesh.vertices)
-	{
-		printf("v %lf %lf %lf\n", v.x, v.y, v.z);
-	}
-	printf("vertex normal:\n");
-	for (auto v : mesh.normals)
-	{
-		printf("vn %lf %lf %lf\n", v.x, v.y, v.z);
-	}
-	printf("primitives:\n");
-	for (auto p : primitives)
-	{
-		printf("f %d/%d %d/%d %d/%d\n", p->v0, p->n0, p->v1, p->n1, p->v2, p->n2);
-		p->get_bsdf()->print_bsdf();
 	}
 	return;
 }
@@ -184,6 +170,7 @@ void Scene::Load_Material(string material_file_name)
 		double Ns = 0;
 		while (getline(material_file, line))
 		{
+			printf("read line %s\n", line.c_str());
 			vector<string> words;
 			SplitString(line, words, " ");
 			if (words[0] == "newmtl")
@@ -236,6 +223,9 @@ void Scene::Load_Material(string material_file_name)
 				stringToNum(Ns, words[1]);
 			}
 		}
+		BlinnPhonBSDF * newmtl = new BlinnPhonBSDF(name, Ka, Kd, Ks, Tf, Ni, Ns);
+		materials[name] = newmtl;
 	}
+	//getchar();
 }
 

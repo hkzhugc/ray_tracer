@@ -24,12 +24,12 @@ public:
 class CosineNPowWeightedHemisphereSampler : public Sampler
 {
 public:
-	CosineNPowWeightedHemisphereSampler(double _Ks) : Ks(_Ks) {};
+	CosineNPowWeightedHemisphereSampler(double _Ns) : Ns(_Ns) {};
 	~CosineNPowWeightedHemisphereSampler() {};
 	Vector3D get_sample() const;
 	Vector3D get_sample(float* pdf) const;
 private:
-	double Ks;
+	double Ns;
 };
 
 class UniformHemisphereSampler3D : public Sampler

@@ -63,7 +63,8 @@ public:
 	Color get_emission() const;
 
 	//sample a light, return the outgoing dir and pdf and color
-	Color sample_f(const Vector3D& wo, Vector3D* wi, float* pdf) const;
+	Color sample_f(const Vector3D& wo, Vector3D* wi, float* pdf, bool * is_sample_specular) const;
+	void reflect(const Vector3D & wo, Vector3D * wi) const;
 	Color f(const Vector3D& wo, const Vector3D& wi) const;
 	Color Kd;
 private:

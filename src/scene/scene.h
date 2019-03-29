@@ -93,6 +93,7 @@ public:
 	Materials materials;
 	Token_processers token_processers;
 	BlinnPhonBSDF* triangle_bsdf;
+	string triangle_bsdf_name;
 private:
 	void Process_token(vector<string>& words);
 	string prefix;

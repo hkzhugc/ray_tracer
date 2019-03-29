@@ -51,14 +51,19 @@ Vector3D UniformSphereSampler3D::get_sample() const
 
 Vector3D UniformSphereSampler3D::get_sample(float *pdf) const 
 {
+	double Xi1 = random_uniform();
+	double Xi2 = random_uniform();
+
+	double theta = acos(1 - 2 * Xi1);
+	double phi = 2.0 * M_PI * Xi2;
+
 	*pdf = 1 / (4. * M_PI);
-	double z = random_uniform();
-	z = 2 * z - 1;
-	double sinTheta = sqrt(std::max(0.0, 1.0f - z * z));
 
-	double phi = 2.0f * M_PI * random_uniform();
+	double xs = sinf(theta) * cosf(phi);
+	double ys = sinf(theta) * sinf(phi);
+	double zs = cosf(theta);
 
-	return Vector3D(cos(phi) * sinTheta, sin(phi) * sinTheta, z);
+	return Vector3D(xs, ys, zs);
 }
 
 Vector3D CosineNPowWeightedHemisphereSampler::get_sample() const
@@ -72,12 +77,12 @@ Vector3D CosineNPowWeightedHemisphereSampler::get_sample(float * pdf) const
 	double Xi1 = random_uniform();
 	double Xi2 = random_uniform();
 
-	double cos_val = pow(Xi1, 1. / (Ks + 1));
+	double cos_val = pow(Xi1, 1. / (Ns + 1));
 	double phi = 2.0 * M_PI * Xi2;
 	double sin_val = sqrt(1 - cos_val * cos_val);
 
-	*pdf = (Ks + 1) * pow(cos_val, Ks) / (2. * M_PI);
-
+	*pdf = pow(cos_val, Ns);
+	//*pdf = (*pdf) > 1 ? 1 : *pdf;
 	double xs = sin_val * cosf(phi);
 	double ys = sin_val * sinf(phi);
 	double zs = cos_val;

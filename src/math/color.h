@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 class Color {
 public:
 	float r;
@@ -63,4 +64,10 @@ public:
 		return 0.2126f * r + 0.7152f * g + 0.0722f * b;
 	}
 
+	inline void gama()
+	{
+		r = sqrt(r);
+		g = sqrt(g);
+		b = sqrt(b);
+	}
 };
