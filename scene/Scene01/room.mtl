@@ -8,10 +8,10 @@ Ks 1.0 1.0 1.0
 Ns 1000
 newmtl glass
 illum 4
-Kd 0.50 0.50 0.50
+Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 0.00 0.00 0.00
-Ni 1.5
+Ni 1.50
 newmtl lamp
 illum 4
 Kd 0.07 0.03 0.01

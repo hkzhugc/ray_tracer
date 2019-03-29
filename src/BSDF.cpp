@@ -37,21 +37,23 @@ Color BlinnPhonBSDF::sample_f(const Vector3D & wo, Vector3D * wi, float * pdf, b
 	Color bsdf;
 
 	//TODO : should detect if  pdf_diffuse < 1e-10
-	if (Xi < pdf_diffuse + 1e-10 && !(pdf_diffuse < 1e-10))
+	if (pdf_diffuse > 1e-10 && Xi < pdf_diffuse + 1e-10)
 	{
 		bsdf = sample_diffuse(wo, wi, pdf) / pdf_diffuse;
 	}
-	else if (Xi < pdf_diffuse + pdf_specular + 1e-10 && !(pdf_specular < 1e-10))
+	else if (pdf_specular > 1e-10 && Xi < pdf_diffuse + pdf_specular + 1e-10)
 	{
 		bsdf = sample_specular(wo, wi, pdf) / pdf_specular;
 		*is_sample_specular = true;
 	}
-	else if (!(pdf_transparent < 1e-10))
+	else if (pdf_transparent > 1e-10)
 	{
 		//TODO : implement sample transparent
 		//bsdf = sample_diffuse(wo, wi, pdf) / pdf_diffuse;
-		*is_sample_specular = true;
+		printf("transparent\n");
 		bsdf = sample_transparent(wo, wi, pdf) / pdf_transparent;
+		*is_sample_specular = true;
+		getchar();
 		//printf("transparent\n");
 	}
 	else
@@ -74,6 +76,7 @@ bool BlinnPhonBSDF::refract(const Vector3D& wo, Vector3D* wi, float Ni) const
 	int sign = (wo.z >= 0 ? -1 : 1);
 	float eta = (wo.z >= 0 ? (1. / Ni) : Ni);
 	float intervalDelta = 1. - eta * eta * (1. - wo.z * wo.z);
+	printf("intervalDelta = %f eta %f\n", intervalDelta, eta);
 	if (intervalDelta < 0) return false;
 	*wi = Vector3D(-eta * wo[0], -eta * wo[1], (float)sign * sqrt(intervalDelta));
 	if (wi->z * wo.z > 0) printf("wrong\n");
@@ -115,39 +118,29 @@ Color BlinnPhonBSDF::sample_transparent(const Vector3D & wo, Vector3D * wi, floa
 {
 	bool reflect_flag = false;
 	float eta;
-	if (!refract(wo, wi, Ni))
+	*pdf = 1;
+	if (refract(wo, wi, Ni))
 	{
-		*pdf = 1.;
-		reflect_flag = true;
+		printf("refract %lf\n", Ni);
+		return Color(1, 1, 1) / fabs((*wi).z);
 	}
 	else
 	{
-		double R0, R;
-		R0 = pow((1. - Ni) / (1. + Ni), 2);
-		R = R0 + (1. - R0) * pow((1. - fabs(wo.z)), 5);
-		bool coin_flip = random_uniform() < R;
-		if (coin_flip)
-		{
-			*pdf = R;
-			reflect_flag = true;
-		}
-		else
-		{
-			*pdf = (1. - R);
-			reflect_flag = false;
-		}
-	}
-	if (reflect_flag)
-	{
+		printf("reflect %lf\n", Ni);
 		reflect(wo, wi);
-		return Color(*pdf, *pdf, *pdf) / fabs((*wi).z);
+		return Color(1, 1, 1) / fabs((*wi).z);
 	}
-	else
-	{
-		refract(wo, wi, Ni);
-		if (wo.z >= 0) eta = 1.0 / Ni;
-		else eta = Ni;
-		if (wi->z * wo.z > 0) printf("wrong\n");
-		return Color(1 - Tf.r, 1- Tf.g, 1 - Tf.b) * (*pdf) / fabs((*wi).z) / pow(eta, 2);
-	}
+	//if (reflect_flag)
+	//{
+	//	reflect(wo, wi);
+	//	return Color(*pdf, *pdf, *pdf) / fabs((*wi).z);
+	//}
+	//else
+	//{
+	//	refract(wo, wi, Ni);
+	//	if (wo.z >= 0) eta = 1.0 / Ni;
+	//	else eta = Ni;
+	//	if (wi->z * wo.z > 0) printf("wrong\n");
+	//	return Color(1 - Tf.r, 1- Tf.g, 1 - Tf.b) * (*pdf) / fabs((*wi).z) / pow(eta, 2);
+	//}
 }

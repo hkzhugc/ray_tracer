@@ -98,7 +98,8 @@ void ray_tracer::trace_scene()
 	//}
 	//fclose(intersect_file);
 #endif
-	png.writeImage("ray_casting.png");
+	printf("trans_parent_cnt = %d, trans_parent_cnt_L = %d\n", trans_parent_cnt, trans_parent_cnt_L);
+	png.writeImage("ray_casting_without_kd.png");
 }
 
 Color ray_tracer::estimate_direct_light(const Ray & r, const Intersection & intersect)
@@ -175,7 +176,7 @@ Color ray_tracer::estimate_indirect_light(const Ray& r, const Intersection& inte
 	Color reflectance = intersect.bsdf->sample_f(w_out, &w_in, &pdf, &is_sample_specular);
 
 	//if it 
-	if (w_in.z < EPS_D || pdf < EPS_D)
+	if (fabs(w_in.z) < EPS_D || pdf < EPS_D)
 		return L_out;
 
 	wi = o2w * w_in;
@@ -185,7 +186,19 @@ Color ray_tracer::estimate_indirect_light(const Ray& r, const Intersection& inte
 	Ray next_ray(ray_pos, wi);
 	next_ray.depth = r.depth - 1;
 
-	L_out = reflectance * trace_ray(next_ray, true) * fabs(w_in.z) / pdf;
+	Color L_nextRay = trace_ray(next_ray, is_sample_specular);
+
+	L_out = reflectance * L_nextRay * fabs(w_in.z) / pdf;
+
+	if (w_in.z * w_out.z < 0)
+	{
+		trans_parent_cnt++;
+		if (L_nextRay.illum() > EPS_D) trans_parent_cnt_L++;
+		//printf("reflectance %f %f %f\n", reflectance.r, reflectance.g, reflectance.b);
+		//printf("L_nextRay %f %f %f\n", L_nextRay.r, L_nextRay.g, L_nextRay.b);
+		//printf("w_in.z %lf  L_out %f %f %f\n", w_in.z, L_out.r, L_out.g, L_out.b);
+		//getchar();
+	}
 
 	if (isnan(L_out.r) && isnan(L_out.g) && isnan(L_out.b))
 	{

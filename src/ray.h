@@ -5,7 +5,7 @@ struct Ray
 {
 	~Ray(){};
 	
-	Ray(const Vector3D &_o, const Vector3D &_d) : o(_o), d(_d), min_t(0.0), max_t(DBL_MAX), depth(3) 
+	Ray(const Vector3D &_o, const Vector3D &_d) : o(_o), d(_d), min_t(0.0), max_t(DBL_MAX), depth(10) 
 	{
 		inv_d = Vector3D(1 / d.x, 1 / d.y, 1 / d.z);
 		sign[0] = (inv_d.x < 0);

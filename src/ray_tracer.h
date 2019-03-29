@@ -18,7 +18,8 @@ public:
 		screenH = Height;
 		ns_lights = 10;
 		ns_pixel = 10;
-		temp = 0; //TODO delte it after debug
+		trans_parent_cnt = 0;
+		trans_parent_cnt_L = 0;
 	}
 	~ray_tracer() {}
 
@@ -37,7 +38,9 @@ private:
 	size_t screenW, screenH;
 	vector<Vector3D> intersec_ps;
 	FILE * intersect_file;
-	int temp;
+
+	int trans_parent_cnt;
+	int trans_parent_cnt_L;
 
 	size_t ns_lights;
 	size_t ns_pixel;

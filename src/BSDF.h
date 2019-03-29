@@ -55,6 +55,7 @@ public:
 		printf("Kd %f %f %f\n", Kd.r, Kd.g, Kd.b);
 		printf("Ks %f %f %f\n", Ks.r, Ks.g, Ks.b);
 		printf("Tf %f %f %f\n", Tf.r, Tf.g, Tf.b);
+		printf("pdf %f %f %f\n", pdf_diffuse, pdf_specular, pdf_transparent);
 		printf("Ni %lf\n", Ni);
 		printf("Ns %lf\n", Ns);
 	}
