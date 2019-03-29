@@ -64,7 +64,6 @@ public:
 
 	//sample a light, return the outgoing dir and pdf and color
 	Color sample_f(const Vector3D& wo, Vector3D* wi, float* pdf, bool * is_sample_specular) const;
-	void reflect(const Vector3D & wo, Vector3D * wi) const;
 	Color f(const Vector3D& wo, const Vector3D& wi) const;
 	Color Kd;
 private:
@@ -84,6 +83,10 @@ private:
 
 	CosineWeightedHemisphereSampler diffuse_sampler;
 	CosineNPowWeightedHemisphereSampler specular_sampler;
+
+	//helper func for sample_transparent
+	void reflect(const Vector3D & wo, Vector3D * wi) const;
+	bool refract(const Vector3D & wo, Vector3D * wi, float Ni) const;
 
 	Color sample_diffuse(const Vector3D& wo, Vector3D* wi, float* pdf) const;
 	Color sample_specular(const Vector3D& wo, Vector3D* wi, float* pdf) const;

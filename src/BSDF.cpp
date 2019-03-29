@@ -49,10 +49,13 @@ Color BlinnPhonBSDF::sample_f(const Vector3D & wo, Vector3D * wi, float * pdf, b
 	else if (!(pdf_transparent < 1e-10))
 	{
 		//TODO : implement sample transparent
-		bsdf = sample_diffuse(wo, wi, pdf) / pdf_diffuse;
+		//bsdf = sample_diffuse(wo, wi, pdf) / pdf_diffuse;
 		*is_sample_specular = true;
-		//bsdf = sample_transparent(wo, wi, pdf) / pdf_transparent;
+		bsdf = sample_transparent(wo, wi, pdf) / pdf_transparent;
+		//printf("transparent\n");
 	}
+	else
+		return Color();
 	if (isnan(bsdf.r) && isnan(bsdf.g) && isnan(bsdf.b))
 	{
 		printf("isnan sample bsdf %f %f %f , Xi %lf\n", pdf_diffuse, pdf_specular, pdf_transparent, Xi);
@@ -64,6 +67,17 @@ void BlinnPhonBSDF::reflect(const Vector3D& wo, Vector3D* wi) const
 {
 	*wi = Vector3D(-wo[0], -wo[1], wo[2]);
 
+}
+
+bool BlinnPhonBSDF::refract(const Vector3D& wo, Vector3D* wi, float Ni) const
+{
+	int sign = (wo.z >= 0 ? -1 : 1);
+	float eta = (wo.z >= 0 ? (1. / Ni) : Ni);
+	float intervalDelta = 1. - eta * eta * (1. - wo.z * wo.z);
+	if (intervalDelta < 0) return false;
+	*wi = Vector3D(-eta * wo[0], -eta * wo[1], (float)sign * sqrt(intervalDelta));
+	if (wi->z * wo.z > 0) printf("wrong\n");
+	return true;
 }
 
 Color BlinnPhonBSDF::f(const Vector3D& wo, const Vector3D& wi) const
@@ -99,5 +113,41 @@ Color BlinnPhonBSDF::sample_specular(const Vector3D & wo, Vector3D * wi, float *
 
 Color BlinnPhonBSDF::sample_transparent(const Vector3D & wo, Vector3D * wi, float * pdf) const
 {
-	return Color();
+	bool reflect_flag = false;
+	float eta;
+	if (!refract(wo, wi, Ni))
+	{
+		*pdf = 1.;
+		reflect_flag = true;
+	}
+	else
+	{
+		double R0, R;
+		R0 = pow((1. - Ni) / (1. + Ni), 2);
+		R = R0 + (1. - R0) * pow((1. - fabs(wo.z)), 5);
+		bool coin_flip = random_uniform() < R;
+		if (coin_flip)
+		{
+			*pdf = R;
+			reflect_flag = true;
+		}
+		else
+		{
+			*pdf = (1. - R);
+			reflect_flag = false;
+		}
+	}
+	if (reflect_flag)
+	{
+		reflect(wo, wi);
+		return Color(*pdf, *pdf, *pdf) / fabs((*wi).z);
+	}
+	else
+	{
+		refract(wo, wi, Ni);
+		if (wo.z >= 0) eta = 1.0 / Ni;
+		else eta = Ni;
+		if (wi->z * wo.z > 0) printf("wrong\n");
+		return Color(1 - Tf.r, 1- Tf.g, 1 - Tf.b) * (*pdf) / fabs((*wi).z) / pow(eta, 2);
+	}
 }
