@@ -9,14 +9,14 @@ Ns 180.00
 newmtl breakfast_room_cup_Gold_Paint
 illum 4
 Kd 1.00 0.71 0.29
-Ka 1.00 1.00 1.00
+Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 Ni 1.00
 Ks 1.00 1.00 1.00
 Ns 980.00
 newmtl breakfast_room_cup_Material_005
 illum 4
-Kd 0.19  0.186 0.176
+Kd 0.19 0.186 0.176
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 Ni 1.00
@@ -25,7 +25,7 @@ Ns 620.00
 newmtl initialShadingGroup
 illum 4
 Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
+Ka 40.00 40.00 40.00
 Tf 1.00 1.00 1.00
 Ni 1.00
 newmtl lambert2SG
@@ -40,4 +40,6 @@ Kd 0.13 0.03 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 Ni 1.333
-
+newmtl light
+illum 4
+Ka 40 40 40

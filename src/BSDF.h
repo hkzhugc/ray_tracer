@@ -42,9 +42,18 @@ public:
 		pdf_transparent = Color(1 - Tf.r, 1 - Tf.g, 1 - Tf.b).illum();
 
 		double sum = pdf_diffuse + pdf_specular + pdf_transparent;
-		pdf_diffuse /= sum;
-		pdf_specular /= sum;
-		pdf_transparent /= sum;
+		if (sum > 1e-8)
+		{
+			pdf_diffuse /= sum;
+			pdf_specular /= sum;
+			pdf_transparent /= sum;
+		}
+		else
+		{
+			pdf_diffuse = 0;
+			pdf_specular = 0;
+			pdf_transparent = 0;
+		}
 	};
 	~BlinnPhonBSDF() {};
 

@@ -46,7 +46,7 @@ class RecangleLight
 public:
 	RecangleLight(const Color _radiance, const Vector3D& _center, const Vector3D& _normal, double _size_x, double _size_y)
 		: radiance(_radiance), center(_center), normal(_normal),
-		size_x(_size_x), size_y(_size_y)
+		size_x(_size_x), size_y(_size_y), area(_size_x * _size_y)
 	{}
 	~RecangleLight() = default;
 	Color sample_L(const Vector3D& p, Vector3D* wi, double* distToLight, float* pdf) const;
@@ -55,6 +55,7 @@ private:
 	Vector3D normal;
 	double size_x;
 	double size_y;
+	double area;
 	Color radiance;
 };
 

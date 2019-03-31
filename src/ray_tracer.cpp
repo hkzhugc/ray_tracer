@@ -23,7 +23,7 @@ Color ray_tracer::trace_ray(Ray &r, bool is_delta_light)
 
 	if (isnan(light_color.r) && isnan(light_color.g) && isnan(light_color.b))
 	{
-		printf("before sample direct isnan ray pos %f %f %f\n", r.depth, r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
+		printf("before sample direct isnan ray pos %f %f %f\n", r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
 	}
 	//sample the direct light
 	Color direct_light = estimate_direct_light(r, intersect);
@@ -32,7 +32,7 @@ Color ray_tracer::trace_ray(Ray &r, bool is_delta_light)
 
 	if (isnan(light_color.r) && isnan(light_color.g) && isnan(light_color.b))
 	{
-		printf("after sample direct before indir isnan ray pos %f %f %f\n", r.depth, r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
+		printf("after sample direct before indir isnan ray pos %f %f %f\n", r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
 	}
 
 	//TODO : sample indirect light, acoording to the depth of the ray
@@ -45,7 +45,7 @@ Color ray_tracer::trace_ray(Ray &r, bool is_delta_light)
 
 	if (isnan(light_color.r) && isnan(light_color.g) && isnan(light_color.b))
 	{
-		printf("isnan trace ray pos %f %f %f\n", r.depth, r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
+		printf("isnan trace ray pos %f %f %f\n", r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
 	}
 
 	return light_color;
@@ -100,7 +100,7 @@ void ray_tracer::trace_scene()
 		}
 		row_cnt++;
 		if (row_cnt * 100 / screenW > process_percent) {
-			printf("process_percent : %4d%\n", process_percent);
+			printf("process_percent : %4d\%\n", process_percent);
 			process_percent = row_cnt * 100 / screenW;
 		}
 	}
@@ -220,7 +220,7 @@ Color ray_tracer::estimate_indirect_light(const Ray& r, const Intersection& inte
 
 	if (isnan(L_out.r) && isnan(L_out.g) && isnan(L_out.b))
 	{
-		printf("isnan estimate_indirect_light ray pos %f %f %f\n", r.depth, r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
+		printf("isnan estimate_indirect_light ray pos %f %f %f\n", r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
 		printf("isnan pdf  %f w_in.z = %f, is_sample_specular = %d\n", pdf, w_in.z, is_sample_specular);
 		getchar();
 	}

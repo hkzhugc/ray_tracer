@@ -4,7 +4,7 @@
 int main()
 {
 	ray_tracer rt;
-	rt.init_scene(string("../../scene/Scene01/room.obj"), string("1"));
+	rt.init_scene(string("../../scene/Scene02/cup.obj"), string("2"));
 	rt.trace_scene();
 
 	myypng png(100, 200);

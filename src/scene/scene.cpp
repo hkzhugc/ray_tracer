@@ -149,7 +149,8 @@ void Scene::Load_Light(string light_file_name)
 	}
 	else if (light_file_name == "2") // scene 2
 	{
-
+		RecangleLight *light0 = new RecangleLight(Color(40, 40, 40), Vector3D(-2.758771896, 1.5246, 0), Vector3D(1, 0, 0), 1, 1);
+		lights.push_back(light0);
 	}
 	else // scene 3
 	{
@@ -192,6 +193,8 @@ void Scene::Load_Material(string material_file_name)
 			printf("read line %s\n", line.c_str());
 			vector<string> words;
 			SplitString(line, words, " ");
+			if (words.size() < 1)
+				continue;
 			if (words[0] == "newmtl")
 			{
 				if(name == "")
