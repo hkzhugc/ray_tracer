@@ -63,25 +63,40 @@ Color ray_tracer::trace_pixel(size_t x, size_t y)
 void ray_tracer::trace_scene()
 {
 	bvh.build_bvh(scene.primitives);
+	clock_t start = clock();
 	int process_percent = 0;
 	int row_cnt = 0;
+	double maxTolerance = 0.05;
+#define samplesPerBatch 10
 #pragma omp parallel for
 	for (int x = 0; x < screenW; x++)
 	{
 		for (int y = 0; y < screenH; y++)
 		{
 			Color pixel_color;
-			for (int i = 0; i < ns_pixel; i++) {
+			double s1 = 0, s2 = 0;
+			int i = 1;
+			for (; i <= ns_pixel; i++) {
 				Color res = trace_pixel(x, y);
-				if (isnan(res.r) && isnan(res.g) && isnan(res.b))
-				{
-					printf("is not a num %d %d %d\n", x, y, i);
-				}
 				pixel_color += res;
+				double illum = res.illum();
+				s1 += illum;
+				s2 += illum * illum;
+				if (i % samplesPerBatch == 0)
+				{
+					double var = (1. / (i - 1)) * (s2 - s1 * s1 / i);
+					double CI = 1.96 * sqrt(var / i);
+					//printf("CI = %lf, var = %lf, s1 / i = %lf, maxTolerance * (s1 / i) : %lf", CI, var, s1 / i, maxTolerance * (s1 / i));
+					if (CI <= maxTolerance * (s1 / i))
+					{
+						break;
+					}
+				}
 			}
-			pixel_color /= ns_pixel;
+			pixel_color /= i;
 			pixel_color.gama();
 			png.setImagePixel(x, y, pixel_color);
+			png_hot.setImagePixel(x, y, Color((float)i / (float)ns_pixel, 0.3, 0.3));
 		}
 		row_cnt++;
 		if (row_cnt * 100 / screenW > process_percent) {
@@ -98,8 +113,11 @@ void ray_tracer::trace_scene()
 	//}
 	//fclose(intersect_file);
 #endif
+	clock_t end = clock();
+	printf("cost %lf min\n", difftime(end, start) / 1000. / 60.);
 	printf("trans_parent_cnt = %d, trans_parent_cnt_L = %d\n", trans_parent_cnt, trans_parent_cnt_L);
 	png.writeImage("ray_casting_without_kd.png");
+	png_hot.writeImage("hot.png");
 }
 
 Color ray_tracer::estimate_direct_light(const Ray & r, const Intersection & intersect)

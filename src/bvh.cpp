@@ -2,7 +2,9 @@
 
 void BVH::build_bvh(const vector<Triangle*>& triangles)
 {
+	printf("building bvh\n");
 	root = construct_bvh(triangles);
+	printf("building bvh done\n");
 }
 
 //helper func to compute the centroid in which bucket
@@ -10,6 +12,7 @@ int compute_bucket(double centroid, double min_val, double max_val, int bucket_n
 {
 	double idx;
 	idx = ((centroid - min_val) / (max_val - min_val)) * bucket_num;
+	idx = idx >= bucket_num ? bucket_num - 1 : idx;
 	return (int)idx;
 }
 
@@ -27,7 +30,7 @@ BVHNode* BVH::construct_bvh(const std::vector<Triangle*>& triangles) {
 #define max_leaf_size 4
 
 	BBox centroid_box, bbox;
-	bool use_sah = false;
+	bool use_sah = true;
 
 	//compute the bbox tris
 	for (Triangle *p : triangles) {
@@ -63,9 +66,10 @@ BVHNode* BVH::construct_bvh(const std::vector<Triangle*>& triangles) {
 			BBoxBucket bboxBucketRevSum[Bucket_num];
 			double min_val = bbox.min[split_axis];
 			double max_val = bbox.max[split_axis];
+			int idx;
 			for (Triangle *p : triangles)
 			{
-				int idx = compute_bucket(p->get_bbox().centroid()[split_axis], min_val, max_val, Bucket_num);
+				idx = compute_bucket(p->get_bbox().centroid()[split_axis], min_val, max_val, Bucket_num);
 				//cout << endl << "cal idx : " << idx << endl;
 				bboxBucket[idx].expand(p);
 			}

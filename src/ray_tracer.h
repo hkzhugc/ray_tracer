@@ -10,14 +10,16 @@
 class ray_tracer
 {
 public:
+
 	//TODO add flexible way to init the camera and the png
 	ray_tracer() 
-		:camera(Vector3D(0, 0, 4), Vector3D(0, 0, 0), Vector3D(0, 1, 0), 50.f, Width, Height), png(Width, Height)
+		:camera(Vector3D(0, 0, 4), Vector3D(0, 0, 0), Vector3D(0, 1, 0), 50.f, Width, Height), png(Width, Height), png_hot(Width, Height)//Scene01
+		//camera(Vector3D(0.0, 2.0, 15.0), Vector3D(0.0, 1.69521, 14.0476), Vector3D(0.0, 0.952421, -0.304787), 28.f, Width, Height), png(Width, Height), png_hot(Width, Height) //Scene03
 	{
 		screenW = Width;
 		screenH = Height;
-		ns_lights = 10;
-		ns_pixel = 10;
+		ns_lights = 5;
+		ns_pixel = 5000;
 		trans_parent_cnt = 0;
 		trans_parent_cnt_L = 0;
 	}
@@ -33,6 +35,7 @@ private:
 
 	BVH bvh;
 	myypng png;
+	myypng png_hot;
 	Scene scene;
 	Camera camera;
 	size_t screenW, screenH;

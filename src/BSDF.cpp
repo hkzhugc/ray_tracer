@@ -48,16 +48,15 @@ Color BlinnPhonBSDF::sample_f(const Vector3D & wo, Vector3D * wi, float * pdf, b
 	}
 	else if (pdf_transparent > 1e-10)
 	{
-		//TODO : implement sample transparent
-		//bsdf = sample_diffuse(wo, wi, pdf) / pdf_diffuse;
-		printf("transparent\n");
 		bsdf = sample_transparent(wo, wi, pdf) / pdf_transparent;
 		*is_sample_specular = true;
-		getchar();
-		//printf("transparent\n");
 	}
 	else
+	{
+		//printf("nothing %lf %lf %lf %lf\n", Xi, pdf_diffuse, pdf_specular, pdf_transparent);
 		return Color();
+	}
+		
 	if (isnan(bsdf.r) && isnan(bsdf.g) && isnan(bsdf.b))
 	{
 		printf("isnan sample bsdf %f %f %f , Xi %lf\n", pdf_diffuse, pdf_specular, pdf_transparent, Xi);
@@ -76,7 +75,6 @@ bool BlinnPhonBSDF::refract(const Vector3D& wo, Vector3D* wi, float Ni) const
 	int sign = (wo.z >= 0 ? -1 : 1);
 	float eta = (wo.z >= 0 ? (1. / Ni) : Ni);
 	float intervalDelta = 1. - eta * eta * (1. - wo.z * wo.z);
-	printf("intervalDelta = %f eta %f\n", intervalDelta, eta);
 	if (intervalDelta < 0) return false;
 	*wi = Vector3D(-eta * wo[0], -eta * wo[1], (float)sign * sqrt(intervalDelta));
 	if (wi->z * wo.z > 0) printf("wrong\n");
@@ -106,27 +104,20 @@ Color BlinnPhonBSDF::sample_specular(const Vector3D & wo, Vector3D * wi, float *
 		return Color();
 
 	Color ret = Ks * reduce_rate / fabs((*wi).z);
-	//printf("wi %lf %lf %lf, wi norm %lf\n", (*wi).x, (*wi).y, (*wi).z, (*wi).norm());
-	//printf("pdf = %f, reduce_rate = %lf\n", *pdf, reduce_rate);
-	//printf("ret ks %lf %f %f %f\n", ret.r, ret.g, ret.b);
-	//getchar();
-	//div the cos_Lin(theta) because we will multi cos_Lin(theta) when estimate the light contribution 
 	return ret;
 }
 
 Color BlinnPhonBSDF::sample_transparent(const Vector3D & wo, Vector3D * wi, float * pdf) const
 {
-	bool reflect_flag = false;
-	float eta;
 	*pdf = 1;
 	if (refract(wo, wi, Ni))
 	{
-		printf("refract %lf\n", Ni);
+		//printf("refract %lf\n", Ni);
 		return Color(1, 1, 1) / fabs((*wi).z);
 	}
 	else
 	{
-		printf("reflect %lf\n", Ni);
+		//printf("reflect %lf\n", Ni);
 		reflect(wo, wi);
 		return Color(1, 1, 1) / fabs((*wi).z);
 	}

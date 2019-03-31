@@ -21,3 +21,16 @@ Color SphereLight::sample_L(const Vector3D & p, Vector3D * wi, double * distToLi
 	else
 		return radiance * cos_theta / dist2;
 }
+
+
+Color RecangleLight::sample_L(const Vector3D & p, Vector3D * wi, double * distToLight, float * pdf) const
+{
+	double X1, X2;
+	X1 = random_uniform() - 0.5; // -0.5 to 0.5
+	X2 = random_uniform() - 0.5;// -0.5 to 0.5
+
+	double offsetx = X1 * size_x;
+	double offsety = X1 * size_y;
+
+	Vector3D light_pos = center + Vector3D(0, offsetx, offsety);
+}

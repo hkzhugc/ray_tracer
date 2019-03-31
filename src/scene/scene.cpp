@@ -142,9 +142,28 @@ void Scene::Print_Mesh()
 void Scene::Load_Light(string light_file_name)
 {
 	printf("Load Lights from %s\n", light_file_name.c_str());
+	if (light_file_name == "1") // scene 1
+	{
+		SphereLight *light0 = new SphereLight(Color(50, 50, 40), Vector3D(0, 1.589, -1.274), 0.2);
+		lights.push_back(light0);
+	}
+	else if (light_file_name == "2") // scene 2
+	{
 
-	SphereLight *light0 = new SphereLight(Color(50, 50, 40), Vector3D(0, 1.589, -1.274), 0.2);
-	lights.push_back(light0);
+	}
+	else // scene 3
+	{
+		SphereLight *light0 = new SphereLight(Color(800, 800, 800), Vector3D(-10, 10, 4), 0.5);
+		lights.push_back(light0);
+		SphereLight *light1 = new SphereLight(Color(901.803, 901.803, 901.803), Vector3D(3.75, 0, 0), 0.033);
+		lights.push_back(light1);
+		SphereLight *light2 = new SphereLight(Color(100, 100, 100), Vector3D(1.25, 0, 0), 0.1);
+		lights.push_back(light2);
+		SphereLight *light3 = new SphereLight(Color(11.1111, 11.1111, 11.1111), Vector3D(-1.25, 0, 0), 0.3);
+		lights.push_back(light3);
+		SphereLight *light4 = new SphereLight(Color(1.23457, 1.23457, 1.23457), Vector3D(-3.75, 0, 0), 0.9);
+		lights.push_back(light4);
+	}
 }
 
 void Scene::Load_Material(string material_file_name)
