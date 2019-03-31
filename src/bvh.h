@@ -18,7 +18,7 @@ struct BVHNode
 class BVH
 {
 public:
-	BVH() {};
+	BVH() { root = NULL; }
 	~BVH() { if (root) delete root; };
 
 	void build_bvh(const vector<Triangle*> &triangles);

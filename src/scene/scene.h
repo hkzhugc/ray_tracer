@@ -83,8 +83,8 @@ public:
 		for (auto l : lights) delete l;
 
 	}
-	void Load_Scene(string mesh_file, string light_file);
-	void Load_Light(string light_file);
+	bool Load_Scene(string mesh_file, string light_file);
+	bool Load_Light(string light_file);
 	void Load_Material(string material_file);
 	void Print_Mesh();
 	Mesh mesh;

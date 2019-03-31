@@ -4,6 +4,7 @@
 class myypng
 {
 public:
+	myypng() { buffer = NULL; }
 	myypng(int _width, int _height) : 
 		width(_width), height(_height)
 	{
@@ -16,8 +17,13 @@ public:
 		buffer = NULL;
 	}
 
-	int writeImage(char* filename);
-
+	void init_png(int _width, int _height)
+	{
+		width = _width;
+		height = _height;
+		buffer = new png_byte[width * height * 3];
+	}
+	int writeImage(const char* filename);
 	void setImagePixel(int x, int y, Color color);
 private:
 	png_bytep buffer;

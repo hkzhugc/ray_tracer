@@ -93,23 +93,27 @@ void Scene::Process_token(vector<string>& words)
 	}
 	else
 	{
-		printf("process %s not implement yet\n", token.c_str());
+		//printf("process %s not implement yet\n", token.c_str());
 	}
 }
 
-void Scene::Load_Scene(string mesh_file_name, string light_file_name)
+bool Scene::Load_Scene(string mesh_file_name, string light_file_name)
 {
-	Load_Light(light_file_name);
+	if (!Load_Light(light_file_name))
+	{
+		printf("can not select light %s\n", light_file_name.c_str());
+		return false;
+	}
 	ifstream mesh_file;
 	mesh_file.open(mesh_file_name);
 	if (!mesh_file.is_open())
 	{
 		printf("can not open file %s\n", mesh_file_name.c_str());
-		return;
+		return false;
 	}
 	else
 	{
-		size_t pos = mesh_file_name.find_last_of("/");
+		size_t pos = mesh_file_name.find_last_of("/\\");
 		prefix = mesh_file_name.substr(0, pos + 1);
 		//printf("prefix = %s\n", prefix.c_str());
 		string line;
@@ -123,6 +127,7 @@ void Scene::Load_Scene(string mesh_file_name, string light_file_name)
 			string token = words[0];
 			Process_token(words);
 		}
+		return true;
 	}
 }
 
@@ -139,20 +144,22 @@ void Scene::Print_Mesh()
 }
 
 //TODO : implement load light from a file
-void Scene::Load_Light(string light_file_name)
+bool Scene::Load_Light(string light_file_name)
 {
 	printf("Load Lights from %s\n", light_file_name.c_str());
 	if (light_file_name == "1") // scene 1
 	{
 		SphereLight *light0 = new SphereLight(Color(50, 50, 40), Vector3D(0, 1.589, -1.274), 0.2);
 		lights.push_back(light0);
+		return true;
 	}
 	else if (light_file_name == "2") // scene 2
 	{
 		RecangleLight *light0 = new RecangleLight(Color(40, 40, 40), Vector3D(-2.758771896, 1.5246, 0), Vector3D(1, 0, 0), 1, 1);
 		lights.push_back(light0);
+		return true;
 	}
-	else // scene 3
+	else if (light_file_name == "3")// scene 3
 	{
 		SphereLight *light0 = new SphereLight(Color(800, 800, 800), Vector3D(-10, 10, 4), 0.5);
 		lights.push_back(light0);
@@ -164,7 +171,9 @@ void Scene::Load_Light(string light_file_name)
 		lights.push_back(light3);
 		SphereLight *light4 = new SphereLight(Color(1.23457, 1.23457, 1.23457), Vector3D(-3.75, 0, 0), 0.9);
 		lights.push_back(light4);
+		return true;
 	}
+	else return false;
 }
 
 void Scene::Load_Material(string material_file_name)

@@ -1,8 +1,9 @@
 #include "myypng.h"
 #include <malloc.h>
 
-int myypng::writeImage(char * filename)
+int myypng::writeImage(const char * filename)
 {
+	printf("write Image to %s\n", filename);
 	int code = 1;
 	FILE *fp = NULL;
 	png_structp png_ptr = NULL;

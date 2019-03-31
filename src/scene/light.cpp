@@ -11,11 +11,6 @@ Color SphereLight::sample_L(const Vector3D & p, Vector3D * wi, double * distToLi
 	*distToLight = light_dir.norm();
 	*wi = dir;
 	double cos_theta = -dot(sample_dir, dir);
-
-	if (fabs(cos_theta) > 1 + 1e-8){
-
-		printf("wrong cos_theta %f\n", cos_theta);
-	}
 	if (cos_theta <= 0)
 		return Color(0, 0, 0);
 	else

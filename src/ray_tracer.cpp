@@ -1,9 +1,46 @@
 #include "ray_tracer.h"
 
-void ray_tracer::init_scene(string mesh_file, string light_file)
+bool ray_tracer::init_scene(string mesh_file, string light_file)
 {
-	scene.Load_Scene(mesh_file, light_file);
+	bool flag = scene.Load_Scene(mesh_file, light_file);
 	scene.Print_Mesh();
+
+	int pos1, pos2;
+	pos1 = mesh_file.find_last_of("/\\") + 1;
+	pos2 = mesh_file.find_last_of(".");
+	output_name = mesh_file.substr(pos1, pos2 - pos1);
+
+	return flag;
+}
+
+void ray_tracer::Load_camera(string camera_name, Vector3D pos, Vector3D look_at, Vector3D up, float fovy, size_t screenW, size_t screenH)
+{
+	Camera cam(pos, look_at, up, fovy, screenW, screenH);
+	Load_camera(camera_name, cam);
+}
+
+void ray_tracer::Load_camera(string camera_name, const Camera & cam)
+{
+	cameras[camera_name] = cam;
+}
+
+bool ray_tracer::Set_working_camera(string camera_name)
+{
+	auto it = cameras.find(camera_name);
+	if (it != cameras.end())
+	{
+		working_cam = (it->second);
+		screenW = working_cam.get_screenW();
+		screenH = working_cam.get_screenH();
+		png.init_png(screenW, screenH);
+		png_hot.init_png(screenW, screenH);
+		return true;
+	}
+	else
+	{
+		printf("cannot set camera %s\n", camera_name.c_str());
+		return false;
+	}
 }
 
 Color ray_tracer::trace_ray(Ray &r, bool is_delta_light)
@@ -35,7 +72,6 @@ Color ray_tracer::trace_ray(Ray &r, bool is_delta_light)
 		printf("after sample direct before indir isnan ray pos %f %f %f\n", r.at_time(0)[0], r.at_time(0)[1], r.at_time(0)[2]);
 	}
 
-	//TODO : sample indirect light, acoording to the depth of the ray
 	Color indirect_light;
 	if (r.depth > 0) 
 	{
@@ -56,8 +92,12 @@ Color ray_tracer::trace_pixel(size_t x, size_t y)
 {
 	double delta_x = /*0.5; */random_uniform();
 	double delta_y = /*0.5; */random_uniform();
-	Ray ray = camera.generate_ray((x + delta_x) / screenW, (y + delta_y) / screenH);
-	return trace_ray(ray, true);
+	if (true)
+	{
+		Ray ray = working_cam.generate_ray((x + delta_x) / screenW, (y + delta_y) / screenH);
+		return trace_ray(ray, true);
+	}
+	return Color();
 }
 
 void ray_tracer::trace_scene()
@@ -116,8 +156,8 @@ void ray_tracer::trace_scene()
 	clock_t end = clock();
 	printf("cost %lf min\n", difftime(end, start) / 1000. / 60.);
 	printf("trans_parent_cnt = %d, trans_parent_cnt_L = %d\n", trans_parent_cnt, trans_parent_cnt_L);
-	png.writeImage("ray_casting_without_kd.png");
-	png_hot.writeImage("hot.png");
+	png.writeImage((output_name + "_" + std::to_string(ns_lights) + "_" + std::to_string(ns_pixel) + ".png").c_str());
+	png_hot.writeImage((output_name + "_" + std::to_string(ns_lights) + "_" + std::to_string(ns_pixel) + "_hot.png").c_str());
 }
 
 Color ray_tracer::estimate_direct_light(const Ray & r, const Intersection & intersect)
